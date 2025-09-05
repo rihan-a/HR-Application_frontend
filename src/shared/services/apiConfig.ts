@@ -19,8 +19,8 @@ const getApiBaseUrl = (): string => {
   // In production, use the environment variable
   const envApiUrl = import.meta.env.VITE_API_BASE_URL;
   
-  console.log('🔍 Environment variable VITE_API_BASE_URL:', envApiUrl);
-  console.log('🔍 All environment variables:', import.meta.env);
+  // console.log('🔍 Environment variable VITE_API_BASE_URL:', envApiUrl);
+  // console.log('🔍 All environment variables:', import.meta.env);
   
   // TEMPORARY: Hardcode your backend URL here for testing
   // Replace with your actual backend URL
@@ -62,7 +62,7 @@ export const getApiUrl = (endpoint: string): string => {
   // Remove trailing slash from baseUrl and ensure endpoint starts with /
   const cleanBaseUrl = baseUrl.replace(/\/$/, '');
   const fullUrl = `${cleanBaseUrl}${normalizedEndpoint}`;
-  console.log('🔗 Full API URL:', fullUrl);
+  // console.log('🔗 Full API URL:', fullUrl);
   return fullUrl;
 };
 
@@ -78,12 +78,14 @@ export const getEnvironmentInfo = () => {
   };
 };
 
-// Log environment info in development and production
-console.log('🔧 API Configuration:', getEnvironmentInfo());
-console.log('🌐 API Base URL:', getApiBaseUrl());
+// Log environment info in development only
+if (import.meta.env.DEV) {
+  console.log('🔧 API Configuration:', getEnvironmentInfo());
+  console.log('🌐 API Base URL:', getApiBaseUrl());
+}
 
-// Test API connectivity
-if (import.meta.env.PROD) {
+// Test API connectivity in development only
+if (import.meta.env.DEV) {
   console.log('🧪 Testing API connectivity...');
   fetch(getApiUrl('/api/config'))
     .then(response => {
