@@ -4,6 +4,7 @@ import { AbsenceRequest, AbsenceStatus } from '../../shared/types';
 import { TeamRequestsList } from './components/TeamRequestsList';
 import { ManagerApprovalPanel } from './components/ManagerApprovalPanel';
 import { Calendar, Users, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { getApiUrl } from '../../shared/services/apiConfig';
 
 export const TeamManagementPage: React.FC = () => {
   const { user } = useAuth();
@@ -24,7 +25,7 @@ export const TeamManagementPage: React.FC = () => {
       setError(null);
 
       // Get all team requests
-      const response = await fetch('/api/absence', {
+      const response = await fetch(getApiUrl('/api/absence'), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
