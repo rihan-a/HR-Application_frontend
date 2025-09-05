@@ -19,12 +19,20 @@ const getApiBaseUrl = (): string => {
   // In production, use the environment variable
   const envApiUrl = import.meta.env.VITE_API_BASE_URL;
   
-  // If no environment variable is set, fallback to localhost for testing
+  console.log('🔍 Environment variable VITE_API_BASE_URL:', envApiUrl);
+  console.log('🔍 All environment variables:', import.meta.env);
+  
+  // TEMPORARY: Hardcode your backend URL here for testing
+  // Replace with your actual backend URL
+  const hardcodedBackendUrl = 'https://hr-application-backend.onrender.com'; // CHANGE THIS TO YOUR BACKEND URL
+  
+  // If no environment variable is set, use hardcoded URL
   if (!envApiUrl) {
-    console.warn('⚠️ VITE_API_BASE_URL not set, falling back to localhost:3001');
-    return 'http://localhost:3001';
+    console.warn('⚠️ VITE_API_BASE_URL not set, using hardcoded URL:', hardcodedBackendUrl);
+    return hardcodedBackendUrl;
   }
   
+  console.log('✅ Using environment variable:', envApiUrl);
   return envApiUrl;
 };
 
