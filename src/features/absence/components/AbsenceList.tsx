@@ -4,6 +4,7 @@ import { Button } from '../../../shared/components/ui/Button';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { useToast } from '../../../shared/components/ui/ToastProvider';
+import { getApiUrl } from '../../../shared/services/apiConfig';
 import { 
   Calendar, 
   Clock, 
@@ -84,7 +85,7 @@ export const AbsenceList: React.FC<AbsenceListProps> = ({
     setDeletingId(requestId);
 
     try {
-      const response = await fetch(`/api/absence/${requestId}/employee/${employeeId}`, {
+      const response = await fetch(getApiUrl(`/api/absence/${requestId}/employee/${employeeId}`), {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`

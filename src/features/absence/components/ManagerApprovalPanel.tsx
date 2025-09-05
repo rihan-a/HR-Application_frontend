@@ -4,6 +4,7 @@ import { Button } from '../../../shared/components/ui/Button';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { useToast } from '../../../shared/components/ui/ToastProvider';
+import { getApiUrl } from '../../../shared/services/apiConfig';
 import { 
   Calendar, 
   Clock, 
@@ -34,7 +35,7 @@ export const ManagerApprovalPanel: React.FC<ManagerApprovalPanelProps> = ({
       
       for (const employeeId of uniqueEmployeeIds) {
         try {
-          const response = await fetch(`/api/profiles/${employeeId}`, {
+          const response = await fetch(getApiUrl(`/api/profiles/${employeeId}`), {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }
@@ -87,7 +88,7 @@ export const ManagerApprovalPanel: React.FC<ManagerApprovalPanelProps> = ({
     setProcessingId(requestId);
 
     try {
-      const response = await fetch(`/api/absence/${requestId}/status`, {
+      const response = await fetch(getApiUrl(`/api/absence/${requestId}/status`), {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,

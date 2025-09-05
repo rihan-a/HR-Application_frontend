@@ -7,6 +7,7 @@ import {
   TrendingUp
 } from 'lucide-react';
 import { getAppConfig, AppConfig } from '../../../shared/services/configService';
+import { getApiUrl } from '../../../shared/services/apiConfig';
 
 interface AbsenceStatisticsProps {
   employeeId: string;
@@ -51,7 +52,7 @@ export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId
   };
 
   const fetchStatistics = async () => {
-    const response = await fetch(`/api/absence/employee/${employeeId}/statistics`, {
+    const response = await fetch(getApiUrl(`/api/absence/employee/${employeeId}/statistics`), {
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }

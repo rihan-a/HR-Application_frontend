@@ -5,6 +5,7 @@ import { Input } from '../../../shared/components/ui/Input';
 import { Card } from '../../../shared/components/ui/Card';
 import { useToast } from '../../../shared/components/ui/ToastProvider';
 import { Calendar, AlertCircle } from 'lucide-react';
+import { getApiUrl } from '../../../shared/services/apiConfig';
 
 interface AbsenceRequestFormProps {
   onRequestCreated: (request: AbsenceRequest) => void;
@@ -89,7 +90,7 @@ export const AbsenceRequestForm: React.FC<AbsenceRequestFormProps> = ({
     setError(null);
 
     try {
-      const response = await fetch(`/api/absence/employee/${employeeId}`, {
+      const response = await fetch(getApiUrl(`/api/absence/employee/${employeeId}`), {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`,

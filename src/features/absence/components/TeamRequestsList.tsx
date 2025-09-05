@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AbsenceRequest, AbsenceStatus, EmployeeProfile } from '../../../shared/types';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { getApiUrl } from '../../../shared/services/apiConfig';
 import { 
   Calendar, 
   Clock, 
@@ -32,7 +33,7 @@ export const TeamRequestsList: React.FC<TeamRequestsListProps> = ({
       
       for (const employeeId of uniqueEmployeeIds) {
         try {
-          const response = await fetch(`/api/profiles/${employeeId}`, {
+          const response = await fetch(getApiUrl(`/api/profiles/${employeeId}`), {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken')}`
             }

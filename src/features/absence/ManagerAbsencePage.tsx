@@ -6,6 +6,7 @@ import { AbsenceList } from './components/AbsenceList';
 import { AbsenceStatistics } from './components/AbsenceStatistics';
 import { Button } from '../../shared/components/ui/Button';
 import { Calendar, FileText, CheckCircle, XCircle, AlertCircle } from 'lucide-react';
+import { getApiUrl } from '../../shared/services/apiConfig';
 
 export const ManagerAbsencePage: React.FC = () => {
   const { user } = useAuth();
@@ -26,7 +27,7 @@ export const ManagerAbsencePage: React.FC = () => {
       setError(null);
 
       // Managers viewing their own requests - get only their requests
-      const response = await fetch(`/api/absence/employee/${user?.id}`, {
+      const response = await fetch(getApiUrl(`/api/absence/employee/${user?.id}`), {
         headers: {
           'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
