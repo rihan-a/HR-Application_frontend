@@ -17,6 +17,8 @@ dist-ssr
 DEPLOYMENT.md
 setup-env.sh
 
+tsconfig.tsbuildinfo
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
