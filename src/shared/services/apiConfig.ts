@@ -47,12 +47,15 @@ export const getApiUrl = (endpoint: string): string => {
   
   // If baseUrl is empty (development with proxy), return relative URL
   if (!baseUrl) {
+    console.log('🔗 Using relative URL:', normalizedEndpoint);
     return normalizedEndpoint;
   }
   
   // Remove trailing slash from baseUrl and ensure endpoint starts with /
   const cleanBaseUrl = baseUrl.replace(/\/$/, '');
-  return `${cleanBaseUrl}${normalizedEndpoint}`;
+  const fullUrl = `${cleanBaseUrl}${normalizedEndpoint}`;
+  console.log('🔗 Full API URL:', fullUrl);
+  return fullUrl;
 };
 
 // Environment information
@@ -70,3 +73,16 @@ export const getEnvironmentInfo = () => {
 // Log environment info in development and production
 console.log('🔧 API Configuration:', getEnvironmentInfo());
 console.log('🌐 API Base URL:', getApiBaseUrl());
+
+// Test API connectivity
+if (import.meta.env.PROD) {
+  console.log('🧪 Testing API connectivity...');
+  fetch(getApiUrl('/api/config'))
+    .then(response => {
+      console.log('✅ API is reachable:', response.status);
+    })
+    .catch(error => {
+      console.error('❌ API connection failed:', error);
+      console.log('💡 This might be a CORS issue or backend not running');
+    });
+}
