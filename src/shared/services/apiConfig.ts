@@ -16,8 +16,16 @@ const getApiBaseUrl = (): string => {
     return '';
   }
   
-  // In production, use the environment variable or fallback
-  return import.meta.env.VITE_API_BASE_URL || '';
+  // In production, use the environment variable
+  const envApiUrl = import.meta.env.VITE_API_BASE_URL;
+  
+  // If no environment variable is set, fallback to localhost for testing
+  if (!envApiUrl) {
+    console.warn('⚠️ VITE_API_BASE_URL not set, falling back to localhost:3001');
+    return 'http://localhost:3001';
+  }
+  
+  return envApiUrl;
 };
 
 // Get API configuration
@@ -59,7 +67,6 @@ export const getEnvironmentInfo = () => {
   };
 };
 
-// Log environment info in development
-if (import.meta.env.DEV) {
-  console.log('🔧 API Configuration:', getEnvironmentInfo());
-}
+// Log environment info in development and production
+console.log('🔧 API Configuration:', getEnvironmentInfo());
+console.log('🌐 API Base URL:', getApiBaseUrl());
