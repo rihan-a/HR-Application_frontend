@@ -55,7 +55,6 @@ export const getApiUrl = (endpoint: string): string => {
   
   // If baseUrl is empty (development with proxy), return relative URL
   if (!baseUrl) {
-    console.log('🔗 Using relative URL:', normalizedEndpoint);
     return normalizedEndpoint;
   }
   
