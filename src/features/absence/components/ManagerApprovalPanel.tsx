@@ -31,7 +31,11 @@ export const ManagerApprovalPanel: React.FC<ManagerApprovalPanelProps> = ({
   useEffect(() => {
     // Fetch employee profiles for all unique employee IDs in requests
     const fetchEmployeeProfiles = async () => {
-      const uniqueEmployeeIds = [...new Set(requests.map(req => req.id.split('_')[0]))];
+      // Extract employee IDs from the employeeId field in the request
+      const uniqueEmployeeIds = [...new Set(requests
+        .map(req => req.employeeId)
+        .filter((id): id is string => id !== undefined)
+      )];
       
       for (const employeeId of uniqueEmployeeIds) {
         try {
@@ -71,15 +75,22 @@ export const ManagerApprovalPanel: React.FC<ManagerApprovalPanelProps> = ({
     return days;
   };
 
-  const getEmployeeName = (requestId: string) => {
-    // Extract employee ID from request ID (assuming format: absence_timestamp_random)
-    const employeeId = requestId.split('_')[0];
+  const getEmployeeName = (request: AbsenceRequest) => {
+    // Use the employeeId field from the request
+    const employeeId = request.employeeId;
+    if (!employeeId) {
+      return 'Unknown Employee';
+    }
     const profile = employeeProfiles.get(employeeId);
     return profile ? `${profile.firstName} ${profile.lastName}` : 'Unknown Employee';
   };
 
-  const getEmployeeDepartment = (requestId: string) => {
-    const employeeId = requestId.split('_')[0];
+  const getEmployeeDepartment = (request: AbsenceRequest) => {
+    // Use the employeeId field from the request
+    const employeeId = request.employeeId;
+    if (!employeeId) {
+      return 'Unknown Department';
+    }
     const profile = employeeProfiles.get(employeeId);
     return profile?.department || 'Unknown Department';
   };
@@ -147,8 +158,8 @@ export const ManagerApprovalPanel: React.FC<ManagerApprovalPanelProps> = ({
         {requests.map((request) => {
           const days = calculateDays(request.startDate, request.endDate);
           const isProcessing = processingId === request.id;
-          const employeeName = getEmployeeName(request.id);
-          const employeeDepartment = getEmployeeDepartment(request.id);
+          const employeeName = getEmployeeName(request);
+          const employeeDepartment = getEmployeeDepartment(request);
           
           return (
             <Card key={request.id} className="p-6 border-l-4 border-l-yellow-500">
