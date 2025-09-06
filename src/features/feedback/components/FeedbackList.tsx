@@ -2,7 +2,8 @@ import React from 'react';
 import { Feedback, UserRole } from '../../../shared/types';
 import { FeedbackItem } from './FeedbackItem';
 import { Card } from '../../../shared/components/ui/Card';
-import { MessageCircle, Loader2 } from 'lucide-react';
+import { LoadingSpinner } from '../../../shared/components/ui';
+import { MessageCircle } from 'lucide-react';
 
 interface FeedbackListProps {
   feedback: Feedback[];
@@ -28,8 +29,7 @@ export const FeedbackList: React.FC<FeedbackListProps> = ({
     return (
       <Card className="p-8">
         <div className="flex flex-col items-center justify-center space-y-4">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
-          <p className="text-gray-300">Loading feedback...</p>
+          <LoadingSpinner size="lg" text="Loading feedback..." />
         </div>
       </Card>
     );

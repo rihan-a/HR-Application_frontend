@@ -3,6 +3,7 @@ import { useForm } from 'react-hook-form';
 import { useAIEnhancement } from '../hooks/useAIEnhancement';
 import { Button } from '../../../shared/components/ui/Button';
 import { Card } from '../../../shared/components/ui/Card';
+import { LoadingSpinner } from '../../../shared/components/ui';
 import { UserRole } from '../../../shared/types';
 import { Sparkles, Send, RotateCcw, Info } from 'lucide-react';
 
@@ -141,7 +142,7 @@ export const FeedbackForm: React.FC<FeedbackFormProps> = ({
               >
                 {aiLoading ? (
                   <>
-                    <div className="animate-spin h-3 w-3 border-b-2 border-blue-500"></div>
+                    <LoadingSpinner size="sm" />
                     <span>Enhancing...</span>
                   </>
                 ) : isEnhanced && enhancedText ? (

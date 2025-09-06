@@ -3,6 +3,7 @@ import { Card } from '../../../shared/components/ui/Card';
 import { Input } from '../../../shared/components/ui/Input';
 import { Button } from '../../../shared/components/ui/Button';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { LoadingSpinner } from '../../../shared/components/ui';
 import { ProfileCard } from './ProfileCard';
 import { EmployeeProfile, UserRole } from '../../../shared/types';
 import { useAuth } from '../../auth/AuthContext';
@@ -123,7 +124,7 @@ export const ProfileBrowser: React.FC<ProfileBrowserProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-b-2 border-blue-600"></div>
+        <LoadingSpinner size="md" text="Loading profiles..." />
       </div>
     );
   }

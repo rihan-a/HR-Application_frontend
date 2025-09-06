@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { AbsenceRequest, AbsenceStatus, EmployeeProfile } from '../../../shared/types';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { LoadingSpinner } from '../../../shared/components/ui';
 import { getApiUrl } from '../../../shared/services/apiConfig';
 import { 
   Calendar, 
@@ -111,8 +112,7 @@ export const TeamRequestsList: React.FC<TeamRequestsListProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-b-2 border-blue-400"></div>
-        <span className="ml-2 text-gray-300">Loading team requests...</span>
+        <LoadingSpinner size="md" text="Loading team requests..." />
       </div>
     );
   }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { UserRole } from '../../shared/types/index';
 import { useAuth } from './AuthContext';
+import { LoadingSpinner } from '../../shared/components/ui';
 
 
 export const LoginForm: React.FC = () => {
@@ -71,7 +72,7 @@ export const LoginForm: React.FC = () => {
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-600 shadow-sm bg-gray-800 text-sm font-medium text-gray-200 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
-                    <div className="animate-spin h-4 w-4 border-b-2 border-gray-300"></div>
+                    <LoadingSpinner size="sm" variant="white" />
                   ) : (
                     demoUser.label
                   )}

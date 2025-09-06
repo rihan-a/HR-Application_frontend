@@ -3,6 +3,7 @@ import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
 import { Button } from '../../../shared/components/ui/Button';
+import { LoadingSpinner } from '../../../shared/components/ui';
 import { EmployeeProfile, UserRole } from '../../../shared/types';
 import { useAuth } from '../../auth/AuthContext';
 import { FeedbackForm } from '../../feedback/components/FeedbackForm';
@@ -118,7 +119,7 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onEditProfile, refresh
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-12 w-12 border-b-2 border-blue-400"></div>
+        <LoadingSpinner size="lg" text="Loading profile..." />
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card } from '../../../shared/components/ui/Card';
+import { LoadingSpinner } from '../../../shared/components/ui';
 import { 
   Calendar, 
   CheckCircle, 
@@ -70,8 +71,7 @@ export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId
     return (
       <Card className="p-6">
         <div className="flex items-center justify-center py-8">
-          <div className="animate-spin h-6 w-6 border-b-2 border-blue-400"></div>
-          <span className="ml-2 text-gray-300">Loading statistics...</span>
+          <LoadingSpinner size="sm" text="Loading statistics..." />
         </div>
       </Card>
     );

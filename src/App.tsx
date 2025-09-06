@@ -14,6 +14,7 @@ import { ProfileBrowser } from './features/profile/components/ProfileBrowser';
 import { FeedbackList } from './features/feedback/components/FeedbackList';
 import { AbsencePage, ManagerAbsencePage, TeamManagementPage } from './features/absence';
 import { ToastProvider } from './shared/components/ui/ToastProvider';
+import { LoadingSpinner } from './shared/components/ui';
 import { MessageSquare } from 'lucide-react';
 import { localStorageService } from './shared/services/localStorage';
 import { getApiUrl } from './shared/services/apiConfig';
@@ -81,7 +82,7 @@ const Feedback = () => {
   };
   
   if (!user) {
-    return <div>Loading...</div>;
+    return <LoadingSpinner size="lg" text="Loading..." />;
   }
 
   // Show received feedback for the current user
@@ -234,11 +235,7 @@ const AppRoutes: React.FC = () => {
 
   // Show loading spinner while checking authentication
   if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin h-12 w-12 border-2 border-blue-400"></div>
-      </div>
-    );
+    return <LoadingSpinner size="xl" fullScreen text="Loading..." />;
   }
 
   return (

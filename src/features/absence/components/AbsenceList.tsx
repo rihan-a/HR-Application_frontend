@@ -3,6 +3,7 @@ import { AbsenceRequest, AbsenceStatus } from '../../../shared/types';
 import { Button } from '../../../shared/components/ui/Button';
 import { Card } from '../../../shared/components/ui/Card';
 import { Badge } from '../../../shared/components/ui/Badge';
+import { LoadingSpinner } from '../../../shared/components/ui';
 import { useToast } from '../../../shared/components/ui/ToastProvider';
 import { getApiUrl } from '../../../shared/services/apiConfig';
 import { 
@@ -110,8 +111,7 @@ export const AbsenceList: React.FC<AbsenceListProps> = ({
   if (loading) {
     return (
       <div className="flex items-center justify-center py-12">
-        <div className="animate-spin h-8 w-8 border-b-2 border-blue-400"></div>
-        <span className="ml-2 text-gray-300">Loading absence requests...</span>
+        <LoadingSpinner size="md" text="Loading absence requests..." />
       </div>
     );
   }
