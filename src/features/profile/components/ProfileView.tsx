@@ -32,12 +32,14 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onEditProfile, refresh
   useEffect(() => {
     if (id) {
       fetchProfile(id);
+      // Load feedback data immediately when profile loads
+      refreshFeedback(id);
       // Check if feedback tab is requested via URL
       if (searchParams.get('tab') === 'feedback') {
         setActiveTab('feedback');
       }
     }
-  }, [id, searchParams]);
+  }, [id, searchParams, refreshFeedback]);
 
   // Refetch profile when refreshTrigger changes
   useEffect(() => {
@@ -46,11 +48,6 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onEditProfile, refresh
     }
   }, [refreshTrigger, id]);
 
-  useEffect(() => {
-    if (id && activeTab === 'feedback') {
-      refreshFeedback(id);
-    }
-  }, [id, activeTab, refreshFeedback]);
 
   const fetchProfile = async (profileId: string) => {
     try {
