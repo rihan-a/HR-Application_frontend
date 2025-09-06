@@ -18,6 +18,7 @@ import { LoadingSpinner } from './shared/components/ui';
 import { MessageSquare } from 'lucide-react';
 import { localStorageService } from './shared/services/localStorage';
 import { getApiUrl } from './shared/services/apiConfig';
+import { Analytics } from '@vercel/analytics/react';
 
 // Feedback wrapper component
 const Feedback = () => {
@@ -362,6 +363,7 @@ function App() {
         <BrowserRouter>
           <AppRoutes />
         </BrowserRouter>
+        <Analytics />
       </AuthProvider>
     </ToastProvider>
   );
