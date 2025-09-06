@@ -1,12 +1,13 @@
 import React from 'react';
 import { useAuth } from '../auth/AuthContext';
 import { UserRole } from '../../shared/types/index';
-import { 
-  Shield, 
-  User, 
-  Users, 
-  MessageSquare, 
-  Calendar, 
+import { NavLink } from 'react-router-dom';
+import {
+  Shield,
+  User,
+  Users,
+  MessageSquare,
+  Calendar,
   ArrowRight
 } from 'lucide-react';
 
@@ -70,12 +71,12 @@ export const Dashboard: React.FC = () => {
           { name: 'Submit Absence Request', href: '/absence', icon: <Calendar className="w-5 h-5" /> },
           { name: 'View Feedback', href: '/feedback', icon: <MessageSquare className="w-5 h-5" /> }
         ];
-              case UserRole.COWORKER:
-          return [
-            { name: 'My Profile', href: `/profile/${user.id}`, icon: <User className="w-5 h-5" /> },
-            { name: 'Browse Profiles', href: '/profiles/browse', icon: <Users className="w-5 h-5" /> },
-            { name: 'Leave Feedback', href: '/feedback', icon: <MessageSquare className="w-5 h-5" /> }
-          ];
+      case UserRole.COWORKER:
+        return [
+          { name: 'My Profile', href: `/profile/${user.id}`, icon: <User className="w-5 h-5" /> },
+          { name: 'Browse Profiles', href: '/profiles/browse', icon: <Users className="w-5 h-5" /> },
+          { name: 'Leave Feedback', href: '/feedback', icon: <MessageSquare className="w-5 h-5" /> }
+        ];
       default:
         return [];
     }
@@ -106,23 +107,23 @@ export const Dashboard: React.FC = () => {
         <h2 className="text-lg font-semibold text-white mb-4">Quick Actions</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {quickActions.map((action) => (
-            <a
+            <NavLink
               key={action.name}
-              href={action.href}
-                                className="group p-4 border border-gray-600 hover:border-blue-400 hover:bg-gray-800 transition-colors"
+              to={action.href}
+              className="group p-4 border border-gray-600 hover:border-blue-400 hover:bg-gray-800 transition-colors"
             >
               <div className="flex items-center justify-between">
                 <div className="flex items-center space-x-3">
                   <div className="text-blue-400 group-hover:text-blue-300">
                     {action.icon}
                   </div>
-                                      <span className="font-medium text-gray-200 group-hover:text-blue-300">
+                  <span className="font-medium text-gray-200 group-hover:text-blue-300">
                     {action.name}
                   </span>
                 </div>
-                                  <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="w-4 h-4 text-gray-500 group-hover:text-blue-400 group-hover:translate-x-1 transition-transform" />
               </div>
-            </a>
+            </NavLink>
           ))}
         </div>
       </div>
