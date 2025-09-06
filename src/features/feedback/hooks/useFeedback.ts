@@ -1,6 +1,5 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback } from 'react';
 import { Feedback } from '../../../shared/types';
-import { localStorageService } from '../../../shared/services/localStorage';
 import { getApiUrl } from '../../../shared/services/apiConfig';
 
 interface UseFeedbackReturn {
@@ -17,65 +16,25 @@ export const useFeedback = (): UseFeedbackReturn => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Load feedback from localStorage on mount
-  useEffect(() => {
-    if (localStorageService.isAvailable()) {
-      // Check for and clear any stale feedback data first
-      localStorageService.clearStaleFeedback();
-      
-      const storedFeedback = localStorageService.loadFeedback();
-      setFeedback(storedFeedback);
-
-    }
-  }, []);
 
   const refreshFeedback = useCallback(async (profileId: string) => {
+    setLoading(true);
+    setError(null);
+    
     try {
-
-      setLoading(true);
-      setError(null);
-      
-      // First, try to load from localStorage for immediate response
-      if (localStorageService.isAvailable()) {
-        const localFeedback = localStorageService.getFeedbackForProfile(profileId);
-        setFeedback(localFeedback);
-
-      }
-      
-      // Then try to fetch from API for latest data
-      try {
-        const url = getApiUrl(`/api/feedback/profiles/${profileId}`);
-
-        
-        const response = await fetch(url, {
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }
-        });
-
-        
-        if (response.ok) {
-          const result = await response.json();
-
-          const apiFeedback = result.data || [];
-          
-          // Update localStorage with fresh data
-          if (localStorageService.isAvailable()) {
-            const allFeedback = localStorageService.loadFeedback();
-            const otherFeedback = allFeedback.filter(f => f.toUserId !== profileId);
-            const updatedFeedback = [...apiFeedback, ...otherFeedback];
-            localStorageService.saveFeedback(updatedFeedback);
-
-          }
-          
-          setFeedback(apiFeedback);
-
-        } else {
-
+      const url = getApiUrl(`/api/feedback/profiles/${profileId}`);
+      const response = await fetch(url, {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
-      } catch (apiError) {
+      });
 
-        // Continue using localStorage data
+      if (response.ok) {
+        const result = await response.json();
+        const apiFeedback = result.data || [];
+        setFeedback(apiFeedback);
+      } else {
+        throw new Error('Failed to fetch feedback');
       }
     } catch (err) {
       console.error('❌ Error in refreshFeedback:', err);
@@ -94,98 +53,54 @@ export const useFeedback = (): UseFeedbackReturn => {
       updatedAt: new Date().toISOString()
     };
     
+    setError(null);
+    setFeedback(prev => [optimisticFeedback, ...prev]);
+
     try {
+      const response = await fetch(getApiUrl(`/api/feedback/profiles/${profileId}`), {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(feedbackData),
+      });
 
-      setError(null);
-      
-
-      setFeedback(prev => [optimisticFeedback, ...prev]);
-
-      // Save to localStorage immediately for offline support
-      if (localStorageService.isAvailable()) {
-        localStorageService.addFeedback(optimisticFeedback);
-
-      }
-
-      try {
-        const response = await fetch(getApiUrl(`/api/feedback/profiles/${profileId}`), {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(feedbackData),
-        });
-
-
-        
-        if (response.ok) {
-          const result = await response.json();
-
-          
-          // Replace optimistic feedback with real one
-          const realFeedback = result.data as Feedback;
-          if (realFeedback) {
-            setFeedback(prev => prev.map(f => 
-              f.id === optimisticFeedback.id ? realFeedback : f
-            ));
-          }
-          
-          // Update localStorage with real feedback
-          if (localStorageService.isAvailable()) {
-            localStorageService.updateFeedback(realFeedback);
-
-          }
-          
-
-        } else {
-          throw new Error('Failed to create feedback');
+      if (response.ok) {
+        const result = await response.json();
+        const realFeedback = result.data as Feedback;
+        if (realFeedback) {
+          setFeedback(prev => prev.map(f => 
+            f.id === optimisticFeedback.id ? realFeedback : f
+          ));
         }
-      } catch (apiError) {
-
-        // Keep the optimistic feedback in localStorage for offline support
-        // The user will see their feedback immediately, and it will sync when online
+      } else {
+        throw new Error('Failed to create feedback');
       }
     } catch (err) {
       console.error('❌ Error in createFeedback:', err);
       // Remove optimistic feedback on error
       setFeedback(prev => prev.filter(f => !f.id.startsWith('temp-')));
-      if (localStorageService.isAvailable()) {
-        localStorageService.removeFeedback(optimisticFeedback.id);
-      }
       setError(err instanceof Error ? err.message : 'Failed to create feedback');
     }
   }, []);
 
   const deleteFeedback = useCallback(async (feedbackId: string) => {
+    setError(null);
+    
+    // Optimistic update
+    setFeedback(prev => prev.filter(f => f.id !== feedbackId));
+
     try {
-      setError(null);
-      
-      // Optimistic update
-      setFeedback(prev => prev.filter(f => f.id !== feedbackId));
-      
-      // Remove from localStorage immediately
-      if (localStorageService.isAvailable()) {
-        localStorageService.removeFeedback(feedbackId);
-
-      }
-
-      try {
-        const response = await fetch(getApiUrl(`/api/feedback/${feedbackId}`), {
-          method: 'DELETE',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to delete feedback');
+      const response = await fetch(getApiUrl(`/api/feedback/${feedbackId}`), {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         }
-        
+      });
 
-      } catch (apiError) {
-
-        // Keep the optimistic update since we removed from localStorage
+      if (!response.ok) {
+        throw new Error('Failed to delete feedback');
       }
     } catch (err) {
       console.error('❌ Error in deleteFeedback:', err);
