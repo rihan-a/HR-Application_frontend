@@ -58,6 +58,7 @@ export interface Feedback {
 
 export interface AbsenceRequest {
   id: string;
+  employeeId?: string;
   startDate: string;
   endDate: string;
   reason: string;
