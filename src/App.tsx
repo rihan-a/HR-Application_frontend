@@ -16,7 +16,6 @@ import { AbsencePage, ManagerAbsencePage, TeamManagementPage } from './features/
 import { ToastProvider } from './shared/components/ui/ToastProvider';
 import { LoadingSpinner } from './shared/components/ui';
 import { MessageSquare } from 'lucide-react';
-import { localStorageService } from './shared/services/localStorage';
 import { getApiUrl } from './shared/services/apiConfig';
 import { Analytics } from '@vercel/analytics/react';
 
@@ -26,7 +25,7 @@ const Feedback = () => {
   const [feedback, setFeedback] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  
+
   useEffect(() => {
     if (user) {
       fetchReceivedFeedback();
@@ -37,42 +36,20 @@ const Feedback = () => {
     try {
       setLoading(true);
       setError(null);
-      
-      // First, try to load from localStorage for immediate response
-      if (localStorageService.isAvailable()) {
-        const localFeedback = localStorageService.getFeedbackReceivedByUser(user!.id);
-        setFeedback(localFeedback);
 
-      }
-      
-      // Then try to fetch from API for latest data
-      try {
-        const response = await fetch(getApiUrl('/api/feedback/received'), {
-          method: 'GET',
-          headers: {
-            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-          }
-        });
-        
-        if (response.ok) {
-          const data = await response.json();
-          const apiFeedback = data.data || [];
-          
-          // Update localStorage with fresh data
-          if (localStorageService.isAvailable()) {
-            const allFeedback = localStorageService.loadFeedback();
-            const otherFeedback = allFeedback.filter(f => f.toUserId !== user!.id);
-            const updatedFeedback = [...apiFeedback, ...otherFeedback];
-            localStorageService.saveFeedback(updatedFeedback);
+      const response = await fetch(getApiUrl('/api/feedback/received'), {
+        method: 'GET',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+        }
+      });
 
-          }
-          
-          setFeedback(apiFeedback);
-        } 
-
-      } catch (apiError) {
-
-        // Continue using localStorage data
+      if (response.ok) {
+        const data = await response.json();
+        const apiFeedback = data.data || [];
+        setFeedback(apiFeedback);
+      } else {
+        setError('Failed to fetch feedback');
       }
     } catch (err) {
       console.error('❌ Error in fetchReceivedFeedback:', err);
@@ -81,7 +58,7 @@ const Feedback = () => {
       setLoading(false);
     }
   };
-  
+
   if (!user) {
     return <LoadingSpinner size="lg" text="Loading..." />;
   }
@@ -93,10 +70,7 @@ const Feedback = () => {
       <div>
         <h2 className="text-2xl font-bold text-white">Feedback Received</h2>
         <p className="text-gray-300 mt-1">
-          {user.role === 'manager' 
-            ? 'View all feedback across the organization'
-            : 'View feedback and recognition from your colleagues'
-          }
+          View feedback and recognition from your colleagues
         </p>
       </div>
 
@@ -121,10 +95,7 @@ const Feedback = () => {
           </div>
           <h3 className="text-lg font-medium text-white mb-2">No Feedback Yet</h3>
           <p className="text-gray-300">
-            {user.role === 'manager' 
-              ? 'No feedback has been shared across the organization yet.'
-              : 'When your colleagues leave feedback for you, it will appear here.'
-            }
+            When your colleagues leave feedback for you, it will appear here.
           </p>
         </div>
       )}
@@ -137,7 +108,7 @@ const ProfileViewWrapper = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<EmployeeProfile | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
-  
+
   const handleEditProfile = (id: string) => {
     // Fetch the profile and open edit modal
     fetch(getApiUrl(`/api/profiles/${id}`), {
@@ -145,17 +116,17 @@ const ProfileViewWrapper = () => {
         'Authorization': `Bearer ${localStorage.getItem('authToken')}`
       }
     })
-    .then(response => response.json())
-    .then(data => {
-      setEditingProfile(data.profile);
-      setEditModalOpen(true);
-    })
-    .catch(error => console.error('Failed to fetch profile for editing:', error));
+      .then(response => response.json())
+      .then(data => {
+        setEditingProfile(data.profile);
+        setEditModalOpen(true);
+      })
+      .catch(error => console.error('Failed to fetch profile for editing:', error));
   };
 
   const handleSaveProfile = async (updatedData: Partial<EmployeeProfile>) => {
     if (!editingProfile) return;
-    
+
     try {
       const response = await fetch(getApiUrl(`/api/profiles/${editingProfile.id}`), {
         method: 'PUT',
@@ -165,7 +136,7 @@ const ProfileViewWrapper = () => {
         },
         body: JSON.stringify(updatedData)
       });
-      
+
       if (response.ok) {
         // Close the modal and trigger a refresh of the profile data
         setEditModalOpen(false);
@@ -177,7 +148,7 @@ const ProfileViewWrapper = () => {
       console.error('Failed to update profile:', error);
     }
   };
-  
+
   return (
     <>
       <ProfileView onEditProfile={handleEditProfile} refreshTrigger={refreshTrigger} />
@@ -191,40 +162,46 @@ const ProfileViewWrapper = () => {
   );
 };
 
+// Manager only full profiles browser
 const ProfileDashboardWrapper = () => {
   const navigate = useNavigate();
-  
+
   const handleViewProfile = (id: string) => {
     navigate(`/profile/${id}`);
   };
-  
+
   const handleEditProfile = (id: string) => {
     // Navigate to profile view for editing
     navigate(`/profile/${id}`);
   };
+  const handleLeaveFeedback = (id: string) => {
+    // Navigate to the profile view where feedback can be left
+    navigate(`/profile/${id}?tab=feedback`);
+  };
 
   return (
-    <ProfileDashboard 
+    <ProfileDashboard
       onViewProfile={handleViewProfile}
       onEditProfile={handleEditProfile}
+      onLeaveFeedback={handleLeaveFeedback}
     />
   );
 };
 
 const ProfileBrowserWrapper = () => {
   const navigate = useNavigate();
-  
+
   const handleViewProfile = (id: string) => {
     navigate(`/profile/${id}`);
   };
-  
+
   const handleLeaveFeedback = (id: string) => {
     // Navigate to the profile view where feedback can be left
     navigate(`/profile/${id}?tab=feedback`);
   };
-  
+
   return (
-    <ProfileBrowser 
+    <ProfileBrowser
       onViewProfile={handleViewProfile}
       onLeaveFeedback={handleLeaveFeedback}
     />
@@ -242,115 +219,116 @@ const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public routes */}
-      <Route 
-        path="/login" 
+      <Route
+        path="/login"
         element={
           isAuthenticated ? <Navigate to="/dashboard" replace /> : <LoginForm />
-        } 
+        }
       />
 
       {/* Protected routes */}
-      <Route 
-        path="/dashboard" 
+      <Route
+        path="/dashboard"
         element={
           <ProtectedRoute>
             <Layout>
               <Dashboard />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/profile/:id" 
+      <Route
+        path="/profile/:id"
         element={
           <ProtectedRoute>
             <Layout>
               <ProfileViewWrapper />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/profiles" 
+      {/*Managers only all full profiles browser*/}
+      <Route
+        path="/profiles"
         element={
           <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
             <Layout>
               <ProfileDashboardWrapper />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
-
-      <Route 
-        path="/profiles/browse" 
+      {/* Limited details profiles browser for all employees expect managers*/}
+      <Route
+        path="/profiles/browse"
         element={
           <ProtectedRoute allowedRoles={[UserRole.COWORKER, UserRole.EMPLOYEE]}>
             <Layout>
               <ProfileBrowserWrapper />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/feedback" 
+      <Route
+        path="/feedback"
         element={
           <ProtectedRoute>
             <Layout>
               <Feedback />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/absence" 
+      <Route
+        path="/absence"
         element={
           <ProtectedRoute allowedRoles={[UserRole.EMPLOYEE, UserRole.COWORKER]}>
             <Layout>
               <AbsencePage />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/manager/absence" 
+      <Route
+        path="/manager/absence"
         element={
           <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
             <Layout>
               <ManagerAbsencePage />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
-      <Route 
-        path="/manager/team" 
+      <Route
+        path="/manager/team"
         element={
           <ProtectedRoute allowedRoles={[UserRole.MANAGER]}>
             <Layout>
               <TeamManagementPage />
             </Layout>
           </ProtectedRoute>
-        } 
+        }
       />
 
       {/* Default redirects */}
-      <Route 
-        path="/" 
+      <Route
+        path="/"
         element={
           isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-        } 
+        }
       />
-      
-      <Route 
-        path="*" 
+
+      <Route
+        path="*"
         element={
           isAuthenticated ? <Navigate to="/dashboard" replace /> : <Navigate to="/login" replace />
-        } 
+        }
       />
     </Routes>
   );
