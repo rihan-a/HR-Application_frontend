@@ -13,9 +13,10 @@ import { MessageSquare, User } from 'lucide-react';
 
 interface ProfileViewProps {
   onEditProfile?: (id: string) => void;
+  refreshTrigger?: number;
 }
 
-export const ProfileView: React.FC<ProfileViewProps> = ({ onEditProfile }) => {
+export const ProfileView: React.FC<ProfileViewProps> = ({ onEditProfile, refreshTrigger }) => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -36,6 +37,13 @@ export const ProfileView: React.FC<ProfileViewProps> = ({ onEditProfile }) => {
       }
     }
   }, [id, searchParams]);
+
+  // Refetch profile when refreshTrigger changes
+  useEffect(() => {
+    if (id && refreshTrigger !== undefined && refreshTrigger > 0) {
+      fetchProfile(id);
+    }
+  }, [refreshTrigger, id]);
 
   useEffect(() => {
     if (id && activeTab === 'feedback') {
