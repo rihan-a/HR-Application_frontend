@@ -134,6 +134,7 @@ const Feedback = () => {
 const ProfileViewWrapper = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<EmployeeProfile | null>(null);
+  const [refreshTrigger, setRefreshTrigger] = useState(0);
   
   const handleEditProfile = (id: string) => {
     // Fetch the profile and open edit modal
@@ -164,8 +165,11 @@ const ProfileViewWrapper = () => {
       });
       
       if (response.ok) {
-        // Refresh the page to show updated data
-        window.location.reload();
+        // Close the modal and trigger a refresh of the profile data
+        setEditModalOpen(false);
+        setEditingProfile(null);
+        // Trigger a refresh by updating the refresh trigger
+        setRefreshTrigger(prev => prev + 1);
       }
     } catch (error) {
       console.error('Failed to update profile:', error);
@@ -174,7 +178,7 @@ const ProfileViewWrapper = () => {
   
   return (
     <>
-      <ProfileView onEditProfile={handleEditProfile} />
+      <ProfileView onEditProfile={handleEditProfile} refreshTrigger={refreshTrigger} />
       <ProfileEditModal
         profile={editingProfile}
         isOpen={editModalOpen}
