@@ -65,17 +65,12 @@ export const Dashboard: React.FC = () => {
           { name: 'Manage Absence Requests', href: '/manager/team', icon: <Calendar className="w-5 h-5" /> },
         ];
       case UserRole.EMPLOYEE:
-        return [
-          { name: 'Edit My Profile', href: `/profile/${user.id}`, icon: <User className="w-5 h-5" /> },
-          { name: 'Browse Profiles', href: '/profiles/browse', icon: <Users className="w-5 h-5" /> },
-          { name: 'Submit Absence Request', href: '/absence', icon: <Calendar className="w-5 h-5" /> },
-          { name: 'View Feedback', href: '/feedback', icon: <MessageSquare className="w-5 h-5" /> }
-        ];
       case UserRole.COWORKER:
         return [
           { name: 'My Profile', href: `/profile/${user.id}`, icon: <User className="w-5 h-5" /> },
           { name: 'Browse Profiles', href: '/profiles/browse', icon: <Users className="w-5 h-5" /> },
-          { name: 'Leave Feedback', href: '/feedback', icon: <MessageSquare className="w-5 h-5" /> }
+          { name: 'Submit Absence Request', href: '/absence', icon: <Calendar className="w-5 h-5" /> },
+          { name: 'View Feedback', href: '/feedback', icon: <MessageSquare className="w-5 h-5" /> }
         ];
       default:
         return [];
