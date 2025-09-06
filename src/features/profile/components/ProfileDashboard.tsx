@@ -12,11 +12,13 @@ import { getApiUrl } from '../../../shared/services/apiConfig';
 interface ProfileDashboardProps {
   onViewProfile: (id: string) => void;
   onEditProfile: (id: string) => void;
+  onLeaveFeedback?: (id: string, name: string) => void;
 }
 
 export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({
   onViewProfile,
-  onEditProfile
+  onEditProfile,
+  onLeaveFeedback
 }) => {
   const { user } = useAuth();
   const [profiles, setProfiles] = useState<EmployeeProfile[]>([]);
@@ -34,6 +36,16 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({
   useEffect(() => {
     filterProfiles();
   }, [profiles, searchTerm, selectedDepartment]);
+
+
+  const handleLeaveFeedback = (id: string, name: string) => {
+    if (onLeaveFeedback) {
+      onLeaveFeedback(id, name);
+    } else {
+      // Fallback: navigate to profile view where feedback can be left
+      onViewProfile(id);
+    }
+  };
 
   const fetchProfiles = async () => {
     try {
@@ -126,17 +138,6 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({
         </Badge>
       </div>
 
-      {/* Debug Info */}
-      {/* <Card>
-        <div className="text-sm text-gray-600">
-          <p>Total profiles loaded: {profiles.length}</p>
-          <p>Departments loaded: {departments.length}</p>
-          <p>Filtered profiles: {filteredProfiles.length}</p>
-          <p>Search term: "{searchTerm}"</p>
-          <p>Selected department: "{selectedDepartment}"</p>
-        </div>
-      </Card> */}
-
       {/* Search and Filters */}
       <Card>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -198,6 +199,7 @@ export const ProfileDashboard: React.FC<ProfileDashboardProps> = ({
               isOwnProfile={user?.id === profile.id}
               onViewProfile={onViewProfile}
               onEditProfile={onEditProfile}
+              onLeaveFeedback={handleLeaveFeedback}
             />
           ))}
         </div>
