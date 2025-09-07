@@ -4,8 +4,9 @@ import { Button } from '../../../shared/components/ui/Button';
 import { Input } from '../../../shared/components/ui/Input';
 import { Card } from '../../../shared/components/ui/Card';
 import { useToast } from '../../../shared/components/ui/ToastProvider';
-import { Calendar, AlertCircle } from 'lucide-react';
+import { Calendar, AlertCircle, Info } from 'lucide-react';
 import { getApiUrl } from '../../../shared/services/apiConfig';
+import { useVacationDays } from '../hooks/useVacationDays';
 
 interface AbsenceRequestFormProps {
   onRequestCreated: (request: AbsenceRequest) => void;
@@ -26,6 +27,7 @@ export const AbsenceRequestForm: React.FC<AbsenceRequestFormProps> = ({
   employeeId
 }) => {
   const { showSuccess, showError } = useToast();
+  const { totalDays, usedDays, remainingDays, loading: vacationLoading, error: vacationError } = useVacationDays(employeeId);
   const [formData, setFormData] = useState({
     startDate: '',
     endDate: '',
@@ -73,6 +75,13 @@ export const AbsenceRequestForm: React.FC<AbsenceRequestFormProps> = ({
 
     if (formData.reason.length > 500) {
       setError('Reason cannot exceed 500 characters');
+      return false;
+    }
+
+    // Check vacation days availability
+    const requestedDays = calculateDays();
+    if (requestedDays > remainingDays) {
+      setError(`You only have ${remainingDays} vacation day${remainingDays !== 1 ? 's' : ''} remaining. You cannot request ${requestedDays} day${requestedDays !== 1 ? 's' : ''}.`);
       return false;
     }
 
@@ -200,6 +209,35 @@ export const AbsenceRequestForm: React.FC<AbsenceRequestFormProps> = ({
           </div>
         )}
 
+        {/* Vacation Days Info */}
+        {!vacationLoading && !vacationError && (
+          <div className="p-4 bg-green-900 border border-green-700">
+            <div className="flex items-center mb-2">
+              <Info className="w-4 h-4 text-green-400 mr-2" />
+              <h4 className="text-sm font-medium text-green-200">Vacation Days Available</h4>
+            </div>
+            <div className="text-sm text-green-300 space-y-1">
+              <p>• Total annual days: {totalDays}</p>
+              <p>• Days used: {usedDays}</p>
+              <p>• Days remaining: <strong className="text-green-100">{remainingDays}</strong></p>
+              {calculateDays() > 0 && (
+                <p className={`mt-2 ${calculateDays() > remainingDays ? 'text-red-300' : 'text-green-200'}`}>
+                  • Requesting: {calculateDays()} day{calculateDays() !== 1 ? 's' : ''} 
+                  {calculateDays() > remainingDays ? ' (Exceeds available days)' : ' (Within available days)'}
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+
+        {vacationError && (
+          <div className="p-3 bg-yellow-900 border border-yellow-700">
+            <p className="text-sm text-yellow-200">
+              Unable to load vacation days information. Please try again.
+            </p>
+          </div>
+        )}
+
         {/* Absence Type */}
         <div>
           <label htmlFor="absenceType" className="block text-sm font-medium text-gray-200 mb-2">
@@ -258,7 +296,7 @@ export const AbsenceRequestForm: React.FC<AbsenceRequestFormProps> = ({
           </Button>
           <Button
             type="submit"
-            disabled={loading}
+            disabled={loading || (calculateDays() > 0 && calculateDays() > remainingDays)}
             className="min-w-[120px]"
           >
             {loading ? 'Creating...' : 'Submit Request'}
