@@ -72,3 +72,19 @@ export enum AbsenceStatus {
   APPROVED = 'approved',
   REJECTED = 'rejected'
 }
+
+export interface AbsenceStats {
+  totalRequests: number;
+  pendingRequests: number;
+  approvedRequests: number;
+  rejectedRequests: number;
+  totalDaysRequested: number;
+}
+
+export interface VacationDaysData {
+  totalDays: number;
+  usedDays: number;
+  remainingDays: number;
+  loading: boolean;
+  error: string | null;
+}
