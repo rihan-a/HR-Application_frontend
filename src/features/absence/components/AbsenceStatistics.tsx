@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card } from '../../../shared/components/ui/Card';
 import { LoadingSpinner } from '../../../shared/components/ui';
 import { 
@@ -7,65 +7,14 @@ import {
   XCircle, 
   TrendingUp
 } from 'lucide-react';
-import { getAppConfig, AppConfig } from '../../../shared/services/configService';
-import { getApiUrl } from '../../../shared/services/apiConfig';
+import { useVacationDays } from '../hooks/useVacationDays';
 
 interface AbsenceStatisticsProps {
   employeeId: string;
 }
 
-interface AbsenceStats {
-  totalRequests: number;
-  pendingRequests: number;
-  approvedRequests: number;
-  rejectedRequests: number;
-  totalDaysRequested: number;
-}
-
 export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId }) => {
-  const [stats, setStats] = useState<AbsenceStats | null>(null);
-  const [config, setConfig] = useState<AppConfig | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    fetchData();
-  }, [employeeId]);
-
-  const fetchData = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Fetch both statistics and config in parallel
-      const [, appConfig] = await Promise.all([
-        fetchStatistics(),
-        getAppConfig()
-      ]);
-
-      setConfig(appConfig);
-    } catch (err) {
-      console.error('Error fetching data:', err);
-      setError('Failed to load data');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchStatistics = async () => {
-    const response = await fetch(getApiUrl(`/api/absence/employee/${employeeId}/statistics`), {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    });
-
-    if (response.ok) {
-      const data = await response.json();
-      setStats(data.data);
-    } else {
-      throw new Error('Failed to fetch statistics');
-    }
-  };
+  const { totalDays, usedDays, remainingDays, loading, error, detailedStats } = useVacationDays(employeeId);
 
   if (loading) {
     return (
@@ -88,7 +37,7 @@ export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId
     );
   }
 
-  if (!stats || !config) {
+  if (!detailedStats) {
     return null;
   }
 
@@ -120,7 +69,7 @@ export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-blue-300">Days Taken This Year</p>
-              <p className="text-3xl font-bold text-blue-100">{stats.totalDaysRequested}</p>
+              <p className="text-3xl font-bold text-blue-100">{usedDays}</p>
               <p className="text-xs text-blue-200 mt-1">Approved absence days</p>
             </div>
           </div>
@@ -134,8 +83,8 @@ export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId
             </div>
             <div className="ml-4">
               <p className="text-sm font-medium text-green-300">Days Remaining</p>
-              <p className="text-3xl font-bold text-green-100">{Math.max(0, config.annualVacationDays - stats.totalDaysRequested)}</p>
-              <p className="text-xs text-green-200 mt-1">Out of {config.annualVacationDays} annual days</p>
+              <p className="text-3xl font-bold text-green-100">{remainingDays}</p>
+              <p className="text-xs text-green-200 mt-1">Out of {totalDays} annual days</p>
             </div>
           </div>
         </div>
@@ -145,19 +94,19 @@ export const AbsenceStatistics: React.FC<AbsenceStatisticsProps> = ({ employeeId
       <div className="mt-6 p-4 bg-blue-900 border border-blue-700">
         <h4 className="text-sm font-medium text-blue-200 mb-2">Your Absence Summary</h4>
         <div className="text-sm text-blue-300 space-y-1">
-          {stats.pendingRequests > 0 && (
-            <p>• You have {stats.pendingRequests} request{stats.pendingRequests !== 1 ? 's' : ''} pending approval</p>
+          {detailedStats.pendingRequests > 0 && (
+            <p>• You have {detailedStats.pendingRequests} request{detailedStats.pendingRequests !== 1 ? 's' : ''} pending approval</p>
           )}
-          {stats.totalDaysRequested > 0 && (
-            <p>• You've taken {stats.totalDaysRequested} day{stats.totalDaysRequested !== 1 ? 's' : ''} off this year</p>
+          {usedDays > 0 && (
+            <p>• You've taken {usedDays} day{usedDays !== 1 ? 's' : ''} off this year</p>
           )}
-          {stats.totalDaysRequested < config.annualVacationDays && (
-            <p>• You have {config.annualVacationDays - stats.totalDaysRequested} day{config.annualVacationDays - stats.totalDaysRequested !== 1 ? 's' : ''} remaining for this year</p>
+          {usedDays < totalDays && (
+            <p>• You have {remainingDays} day{remainingDays !== 1 ? 's' : ''} remaining for this year</p>
           )}
-          {stats.totalDaysRequested >= config.annualVacationDays && (
+          {usedDays >= totalDays && (
             <p>• You've used all your annual leave days for this year</p>
           )}
-          {stats.totalRequests === 0 && (
+          {detailedStats.totalRequests === 0 && (
             <p>• You haven't submitted any absence requests yet</p>
           )}
         </div>
