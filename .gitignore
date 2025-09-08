@@ -14,6 +14,9 @@ dist
 dist-ssr
 *.local
 
+playwright-report
+test-results
+
 DEPLOYMENT.md
 setup-env.sh
 
