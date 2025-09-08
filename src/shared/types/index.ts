@@ -1,7 +1,7 @@
 export enum UserRole {
   MANAGER = 'manager',
   EMPLOYEE = 'employee',
-  COWORKER = 'coworker'
+  COWORKER = 'coworker',
 }
 
 export interface User {
@@ -10,6 +10,7 @@ export interface User {
   role: UserRole;
   firstName: string;
   lastName: string;
+  permissions: string[]
 }
 
 export interface EmployeeProfile {
