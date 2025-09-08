@@ -15,23 +15,23 @@ const getApiBaseUrl = (): string => {
   if (import.meta.env.DEV) {
     return '';
   }
-  
+
   // In production, use the environment variable
   const envApiUrl = import.meta.env.VITE_API_BASE_URL;
-  
+
   // console.log('🔍 Environment variable VITE_API_BASE_URL:', envApiUrl);
   // console.log('🔍 All environment variables:', import.meta.env);
-  
+
   // TEMPORARY: Hardcode your backend URL here for testing
   // Replace with your actual backend URL
   const hardcodedBackendUrl = 'https://hr-application-backend.onrender.com'; // CHANGE THIS TO YOUR BACKEND URL
-  
+
   // If no environment variable is set, use hardcoded URL
   if (!envApiUrl) {
     console.warn('⚠️ VITE_API_BASE_URL not set, using hardcoded URL:', hardcodedBackendUrl);
     return hardcodedBackendUrl;
   }
-  
+
   console.log('✅ Using environment variable:', envApiUrl);
   return envApiUrl;
 };
@@ -49,15 +49,15 @@ export const getApiConfig = (): ApiConfig => {
 export const getApiUrl = (endpoint: string): string => {
   const config = getApiConfig();
   const baseUrl = config.baseUrl;
-  
+
   // Ensure endpoint starts with /
   const normalizedEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
-  
+
   // If baseUrl is empty (development with proxy), return relative URL
   if (!baseUrl) {
     return normalizedEndpoint;
   }
-  
+
   // Remove trailing slash from baseUrl and ensure endpoint starts with /
   const cleanBaseUrl = baseUrl.replace(/\/$/, '');
   const fullUrl = `${cleanBaseUrl}${normalizedEndpoint}`;
@@ -77,21 +77,3 @@ export const getEnvironmentInfo = () => {
   };
 };
 
-// Log environment info in development only
-if (import.meta.env.DEV) {
-  console.log('🔧 API Configuration:', getEnvironmentInfo());
-  console.log('🌐 API Base URL:', getApiBaseUrl());
-}
-
-// Test API connectivity in development only
-if (import.meta.env.DEV) {
-  console.log('🧪 Testing API connectivity...');
-  fetch(getApiUrl('/api/config'))
-    .then(response => {
-      console.log('✅ API is reachable:', response.status);
-    })
-    .catch(error => {
-      console.error('❌ API connection failed:', error);
-      console.log('💡 This might be a CORS issue or backend not running');
-    });
-}
