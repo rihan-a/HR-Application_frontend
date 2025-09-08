@@ -108,21 +108,26 @@ const ProfileViewWrapper = () => {
   const [editModalOpen, setEditModalOpen] = useState(false);
   const [editingProfile, setEditingProfile] = useState<EmployeeProfile | null>(null);
   const [refreshTrigger, setRefreshTrigger] = useState(0);
+  const token = localStorage.getItem('authToken')
 
-  const handleEditProfile = (id: string) => {
-    // Fetch the profile and open edit modal
-    fetch(getApiUrl(`/api/profiles/${id}`), {
-      headers: {
-        'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-      }
-    })
-      .then(response => response.json())
-      .then(data => {
+  const handleEditProfile = async (id: string) => {
+    try {
+      const response = await fetch(getApiUrl(`api/profiles/${id}`), {
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      })
+      if (response.ok) {
+        const data = await response.json();
         setEditingProfile(data.profile);
         setEditModalOpen(true);
-      })
-      .catch(error => console.error('Failed to fetch profile for editing:', error));
-  };
+      }
+    } catch (error) {
+      console.error('Failed to fetch profile for editing:', error)
+    }
+  }
+
 
   const handleSaveProfile = async (updatedData: Partial<EmployeeProfile>) => {
     if (!editingProfile) return;
@@ -131,7 +136,7 @@ const ProfileViewWrapper = () => {
       const response = await fetch(getApiUrl(`/api/profiles/${editingProfile.id}`), {
         method: 'PUT',
         headers: {
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`,
+          'Authorization': `Bearer ${token}`,
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(updatedData)
